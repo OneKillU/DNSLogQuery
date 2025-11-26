@@ -1,0 +1,24 @@
+configure: WARNING: using cross tools not prefixed with host triplet
+src/jemalloc.c:203:40: warning: expression which evaluates to zero treated as a null pointer constant of type 'pthread_t' (aka 'struct __pthread *') [-Wnon-literal-null-conversion]
+  203 | static pthread_t                malloc_initializer = NO_INITIALIZER;
+      |                                                      ^~~~~~~~~~~~~~
+src/jemalloc.c:200:26: note: expanded from macro 'NO_INITIALIZER'
+  200 | #  define NO_INITIALIZER        ((unsigned long)0)
+      |                                 ^~~~~~~~~~~~~~~~~~
+1 warning generated.
+src/jemalloc.c:203:40: warning: expression which evaluates to zero treated as a null pointer constant of type 'pthread_t' (aka 'struct __pthread *') [-Wnon-literal-null-conversion]
+  203 | static pthread_t                malloc_initializer = NO_INITIALIZER;
+      |                                                      ^~~~~~~~~~~~~~
+src/jemalloc.c:200:26: note: expanded from macro 'NO_INITIALIZER'
+  200 | #  define NO_INITIALIZER        ((unsigned long)0)
+      |                                 ^~~~~~~~~~~~~~~~~~
+1 warning generated.
+src/jemalloc.c:203:40: warning: expression which evaluates to zero treated as a null pointer constant of type 'pthread_t' (aka 'struct __pthread *') [-Wnon-literal-null-conversion]
+  203 | static pthread_t                malloc_initializer = NO_INITIALIZER;
+      |                                                      ^~~~~~~~~~~~~~
+src/jemalloc.c:200:26: note: expanded from macro 'NO_INITIALIZER'
+  200 | #  define NO_INITIALIZER        ((unsigned long)0)
+      |                                 ^~~~~~~~~~~~~~~~~~
+1 warning generated.
+warning: /Library/Developer/CommandLineTools/usr/bin/ranlib: archive library: lib/libjemalloc_pic.a the table of contents is empty (no object file members in the library define global symbols)
+warning: /Library/Developer/CommandLineTools/usr/bin/ranlib: archive library: lib/libjemalloc.a the table of contents is empty (no object file members in the library define global symbols)

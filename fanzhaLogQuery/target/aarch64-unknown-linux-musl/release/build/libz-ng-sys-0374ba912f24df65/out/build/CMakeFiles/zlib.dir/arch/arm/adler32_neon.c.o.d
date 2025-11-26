@@ -1,0 +1,24 @@
+CMakeFiles/zlib.dir/arch/arm/adler32_neon.c.o: \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/arch/arm/adler32_neon.c \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/arch/arm/neon_intrins.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/arm_neon.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/stdint.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/stdint.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/aarch64-linux-musl/bits/alltypes.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/aarch64-linux-musl/bits/stdint.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/arm_bf16.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/arm_vector_types.h \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/zbuild.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/stddef.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/stddef.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_header_macro.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_ptrdiff_t.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_size_t.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_wchar_t.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_null.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_max_align_t.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_offsetof.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/string.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/features.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/stdlib.h \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/adler32_p.h

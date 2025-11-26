@@ -1,0 +1,9 @@
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/lib/libz-ng.a
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/include/zlib-ng.h
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/include/zlib_name_mangling-ng.h
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/include/zconf-ng.h
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/lib/pkgconfig/zlib-ng.pc
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/lib/cmake/zlib-ng/zlib-ng.cmake
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/lib/cmake/zlib-ng/zlib-ng-release.cmake
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/lib/cmake/zlib-ng/zlib-ng-config.cmake
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-0374ba912f24df65/out/lib/cmake/zlib-ng/zlib-ng-config-version.cmake

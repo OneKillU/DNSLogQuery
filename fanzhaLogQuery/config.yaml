@@ -1,0 +1,40 @@
+# 任务1: 汇总日志检索配置
+# --------------------------
+# 汇总日志文件根目录
+logDirectory: "/data/alipms/dns/fanzhaDnsLog_all/"
+
+# 查询域名
+queryDomain: "epdg.epc.mnc011.mcc460.pub.3gppnetwork.org"
+sourceIP: ""
+
+# 查询时间 (queryTime_hour 和 queryTime_day 不能同时为空)
+# 精确至小时 (格式: YYYYMMDDHH)
+queryTime_hour:
+#  - "2025062619"
+#  - "2025062620"
+
+# 精确至天 (格式: YYYYMMDD)
+queryTime_day:
+  - "20250626"
+
+
+# 任务2: 原始日志检索配置
+# --------------------------
+# 是否同时检索原始日志 ("yes" 或 "no")
+isQueryNativeLog: "yes"
+
+# 原始日志文件存放目录 (isQueryNativeLog为 "no" 时不生效)
+nativeLogLoc: "/data/dnsLog_bakup/"
+
+# 原始日志检索结果存放目录 (isQueryNativeLog为 "no" 时不生效)
+# 如果留空，将自动生成一个默认目录，例如: ./k9364.vip_20250626/
+nativeLogResultLoc: "./"
+# 汇总日志保存结果，sourceIP为空时生效
+aggregatedLogResultLoc: "./"
+
+
+# 全局配置
+# --------------------------
+# 并发处理的 worker 数量 (建议根据CPU核心数设置，如 4, 8, 16)
+# 如果设置为 0 或负数，程序将使用默认值 10
+workerPoolSize: 8

@@ -1,0 +1,22 @@
+CMakeFiles/zlib.dir/arch/generic/crc32_braid_c.c.o: \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/arch/generic/crc32_braid_c.c \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/zbuild.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/stddef.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/stddef.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_header_macro.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_ptrdiff_t.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_size_t.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_wchar_t.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_null.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_max_align_t.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/__stddef_offsetof.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/string.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/features.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/aarch64-linux-musl/bits/alltypes.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/stdlib.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/include/stdint.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/generic-musl/stdint.h \
+  /opt/homebrew/Cellar/zig/0.15.2/lib/zig/libc/include/aarch64-linux-musl/bits/stdint.h \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/crc32_braid_p.h \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/zendian.h \
+  /Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng/crc32_braid_tbl.h
