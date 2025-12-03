@@ -8,16 +8,17 @@ use crate::processor::FileProcessor;
 use anyhow::Result;
 use rayon::prelude::*;
 use std::fs::{self, File};
-use std::io::Write;
+use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, Instant};
 use std::thread;
 use walkdir::WalkDir;
+use crossbeam_channel::bounded;
 
 #[global_allocator]
-static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 fn main() -> Result<()> {
     let start_time = Instant::now();
@@ -62,7 +63,22 @@ fn run_aggregated_log_search(config: &Config, processor: &Arc<FileProcessor>) ->
     if let Some(parent) = output_path.parent() {
         fs::create_dir_all(parent)?;
     }
-    let output_file = Arc::new(Mutex::new(File::create(&output_path)?));
+
+    // Channel for async writing
+    let (tx, rx) = bounded::<Vec<u8>>(1024);
+    
+    // Spawn writer thread
+    let writer_handle = thread::spawn(move || -> Result<usize> {
+        let file = File::create(&output_path)?;
+        let mut writer = BufWriter::with_capacity(1024 * 1024, file); // 1MB buffer
+        let mut total_bytes = 0;
+        for chunk in rx {
+            writer.write_all(&chunk)?;
+            total_bytes += chunk.len();
+        }
+        writer.flush()?;
+        Ok(total_bytes)
+    });
 
     // Progress tracking
     let processed_count = Arc::new(AtomicUsize::new(0));
@@ -71,13 +87,12 @@ fn run_aggregated_log_search(config: &Config, processor: &Arc<FileProcessor>) ->
     
     // Spawn progress reporter thread
     let progress_handle = thread::spawn(move || {
-        let mut next_report_time = start_time + Duration::from_secs(120); // First report at 2 minutes
+        let mut next_report_time = start_time + Duration::from_secs(120);
         loop {
-            thread::sleep(Duration::from_secs(30)); // Check every 30 seconds
+            thread::sleep(Duration::from_secs(30));
             let current_count = processed_count_clone.load(Ordering::Relaxed);
             let now = Instant::now();
             
-            // Report every 2 minutes
             if now >= next_report_time {
                 let elapsed = now.duration_since(start_time);
                 let progress_pct = (current_count as f64 / total_files as f64 * 100.0) as usize;
@@ -88,7 +103,7 @@ fn run_aggregated_log_search(config: &Config, processor: &Arc<FileProcessor>) ->
                 };
                 println!("任务1 进度: {}/{} ({}%) | 速度: {:.2} 文件/秒 | 已耗时: {:?}", 
                     current_count, total_files, progress_pct, files_per_sec, elapsed);
-                next_report_time = now + Duration::from_secs(120); // Next report in 2 minutes
+                next_report_time = now + Duration::from_secs(120);
             }
             
             if current_count >= total_files {
@@ -103,26 +118,24 @@ fn run_aggregated_log_search(config: &Config, processor: &Arc<FileProcessor>) ->
 
     let total_matches = pool.install(|| {
         files.par_iter().map(|path| {
-            let file_clone = Arc::clone(&output_file);
-            // Thread-local buffer to reduce lock contention
-            let mut local_buffer = Vec::with_capacity(64 * 1024); // 64KB buffer
+            let tx = tx.clone();
+            // Thread-local buffer
+            let mut local_buffer = Vec::with_capacity(256 * 1024); // 256KB buffer
             
             let result = processor.process_aggregated_file(path, |line| {
                 local_buffer.extend_from_slice(line);
                 local_buffer.push(b'\n');
                 
                 // Flush if buffer is large enough
-                if local_buffer.len() >= 64 * 1024 {
-                    let mut file = file_clone.lock().unwrap();
-                    file.write_all(&local_buffer).unwrap();
+                if local_buffer.len() >= 256 * 1024 {
+                    tx.send(local_buffer.clone()).unwrap();
                     local_buffer.clear();
                 }
             });
             
             // Flush remaining data
             if !local_buffer.is_empty() {
-                let mut file = file_clone.lock().unwrap();
-                file.write_all(&local_buffer).unwrap();
+                tx.send(local_buffer).unwrap();
             }
             
             let match_count = match result {
@@ -137,10 +150,14 @@ fn run_aggregated_log_search(config: &Config, processor: &Arc<FileProcessor>) ->
         }).sum::<usize>()
     });
 
-    // Wait for progress reporter to finish
+    // Drop main thread's sender to close channel
+    drop(tx);
+    
+    // Wait for writer and progress reporter
+    let _ = writer_handle.join().unwrap();
     let _ = progress_handle.join();
 
-    println!("任务1: 结果成功保存至 {:?}，共写入 {} 条记录。", output_path, total_matches);
+    println!("任务1: 结果已保存，共写入 {} 条记录。", total_matches);
     println!("--- [任务1: 结束, 耗时: {:?}] ---", task_time.elapsed());
     Ok(())
 }
@@ -163,7 +180,22 @@ fn run_native_log_search(config: &Config, processor: &Arc<FileProcessor>) -> Res
     if let Some(parent) = output_path.parent() {
         fs::create_dir_all(parent)?;
     }
-    let output_file = Arc::new(Mutex::new(File::create(&output_path)?));
+
+    // Channel for async writing
+    let (tx, rx) = bounded::<Vec<u8>>(1024);
+    
+    // Spawn writer thread
+    let writer_handle = thread::spawn(move || -> Result<usize> {
+        let file = File::create(&output_path)?;
+        let mut writer = BufWriter::with_capacity(1024 * 1024, file); // 1MB buffer
+        let mut total_bytes = 0;
+        for chunk in rx {
+            writer.write_all(&chunk)?;
+            total_bytes += chunk.len();
+        }
+        writer.flush()?;
+        Ok(total_bytes)
+    });
 
     // Progress tracking
     let processed_count = Arc::new(AtomicUsize::new(0));
@@ -172,13 +204,12 @@ fn run_native_log_search(config: &Config, processor: &Arc<FileProcessor>) -> Res
     
     // Spawn progress reporter thread
     let progress_handle = thread::spawn(move || {
-        let mut next_report_time = start_time + Duration::from_secs(120); // First report at 2 minutes
+        let mut next_report_time = start_time + Duration::from_secs(120);
         loop {
-            thread::sleep(Duration::from_secs(30)); // Check every 30 seconds
+            thread::sleep(Duration::from_secs(30));
             let current_count = processed_count_clone.load(Ordering::Relaxed);
             let now = Instant::now();
             
-            // Report every 2 minutes
             if now >= next_report_time {
                 let elapsed = now.duration_since(start_time);
                 let progress_pct = (current_count as f64 / total_files as f64 * 100.0) as usize;
@@ -189,7 +220,7 @@ fn run_native_log_search(config: &Config, processor: &Arc<FileProcessor>) -> Res
                 };
                 println!("任务2 进度: {}/{} ({}%) | 速度: {:.2} 文件/秒 | 已耗时: {:?}", 
                     current_count, total_files, progress_pct, files_per_sec, elapsed);
-                next_report_time = now + Duration::from_secs(120); // Next report in 2 minutes
+                next_report_time = now + Duration::from_secs(120);
             }
             
             if current_count >= total_files {
@@ -203,26 +234,24 @@ fn run_native_log_search(config: &Config, processor: &Arc<FileProcessor>) -> Res
 
     let total_matches = pool.install(|| {
         files.par_iter().map(|path| {
-            let file_clone = Arc::clone(&output_file);
-            // Thread-local buffer to reduce lock contention
-            let mut local_buffer = Vec::with_capacity(64 * 1024); // 64KB buffer
+            let tx = tx.clone();
+            // Thread-local buffer
+            let mut local_buffer = Vec::with_capacity(256 * 1024); // 256KB buffer
 
             let result = processor.process_native_file(path, |line| {
                 local_buffer.extend_from_slice(line);
                 local_buffer.push(b'\n');
                 
                 // Flush if buffer is large enough
-                if local_buffer.len() >= 64 * 1024 {
-                    let mut file = file_clone.lock().unwrap();
-                    file.write_all(&local_buffer).unwrap();
+                if local_buffer.len() >= 256 * 1024 {
+                    tx.send(local_buffer.clone()).unwrap();
                     local_buffer.clear();
                 }
             });
             
             // Flush remaining data
             if !local_buffer.is_empty() {
-                let mut file = file_clone.lock().unwrap();
-                file.write_all(&local_buffer).unwrap();
+                tx.send(local_buffer).unwrap();
             }
             
             let match_count = match result {
@@ -237,10 +266,14 @@ fn run_native_log_search(config: &Config, processor: &Arc<FileProcessor>) -> Res
         }).sum::<usize>()
     });
 
-    // Wait for progress reporter to finish
+    // Drop main thread's sender
+    drop(tx);
+
+    // Wait for writer and progress reporter
+    let _ = writer_handle.join().unwrap();
     let _ = progress_handle.join();
 
-    println!("任务2: 结果成功保存至 {:?}，共写入 {} 条记录。", output_path, total_matches);
+    println!("任务2: 结果已保存，共写入 {} 条记录。", total_matches);
     println!("--- [任务2: 结束, 耗时: {:?}] ---", task_time.elapsed());
     Ok(())
 }
@@ -288,9 +321,25 @@ fn get_output_path(config: &Config, task_type: &str, is_aggregated: bool) -> Pat
         "unknown".to_string()
     };
 
+    let domain_part = if config.query_domain.is_empty() {
+        "all_domains".to_string()
+    } else if config.query_domain.len() == 1 {
+        config.query_domain[0].replace("*", "wildcard")
+    } else {
+        "multi_domains".to_string()
+    };
+
+    let ip_part = if config.source_ip.is_empty() {
+        "all_ips".to_string()
+    } else if config.source_ip.len() == 1 {
+        config.source_ip[0].replace("/", "_")
+    } else {
+        "multi_ips".to_string()
+    };
+
     let dir_name = format!("{}_{}_{}_results", 
-        config.query_domain.replace("*", "wildcard"), 
-        config.source_ip.replace("/", "_"), // sanitize CIDR
+        domain_part, 
+        ip_part, 
         date_part
     );
 

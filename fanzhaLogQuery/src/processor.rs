@@ -1,6 +1,6 @@
 use crate::matcher::{DomainMatcher, IPMatcher};
 use anyhow::Result;
-use flate2::read::GzDecoder;
+use flate2::read::MultiGzDecoder;
 use memchr::memchr_iter;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -31,7 +31,7 @@ impl FileProcessor {
     {
         let file = File::open(path)?;
         let reader = BufReader::with_capacity(2 * 1024 * 1024, file);
-        let decoder = GzDecoder::new(reader);
+        let decoder = MultiGzDecoder::new(reader);
         let mut reader = BufReader::with_capacity(1024 * 1024, decoder);
 
         let filter_ip = !self.ip_matcher.is_none();
@@ -53,29 +53,10 @@ impl FileProcessor {
                 continue;
             }
 
-            // Optimization: Check IP first (Index 0) then Domain (Index 1)
-            if filter_ip {
-                if let Some(ip) = get_nth_field(&line_buf, b'|', AGGREGATED_LOG_IP_INDEX) {
-                    if !self.ip_matcher.matches(ip) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
+            if self.check_line(&line_buf, filter_ip, filter_domain, AGGREGATED_LOG_IP_INDEX, AGGREGATED_LOG_DOMAIN_INDEX) {
+                callback(&line_buf);
+                match_count += 1;
             }
-
-            if filter_domain {
-                if let Some(domain) = get_nth_field(&line_buf, b'|', AGGREGATED_LOG_DOMAIN_INDEX) {
-                    if !self.domain_matcher.matches(domain) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
-
-            callback(&line_buf);
-            match_count += 1;
         }
 
         Ok(match_count)
@@ -87,7 +68,7 @@ impl FileProcessor {
     {
         let file = File::open(path)?;
         let reader = BufReader::with_capacity(2 * 1024 * 1024, file);
-        let decoder = GzDecoder::new(reader);
+        let decoder = MultiGzDecoder::new(reader);
         let mut reader = BufReader::with_capacity(1024 * 1024, decoder);
 
         let filter_ip = !self.ip_matcher.is_none();
@@ -109,50 +90,79 @@ impl FileProcessor {
                 continue;
             }
 
-            // Optimization: Check IP first (Index 4) then Domain (Index 7)
-            if filter_ip {
-                if let Some(ip) = get_nth_field(&line_buf, b'|', NATIVE_LOG_IP_INDEX) {
-                    if !self.ip_matcher.matches(ip) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
+            if self.check_line(&line_buf, filter_ip, filter_domain, NATIVE_LOG_IP_INDEX, NATIVE_LOG_DOMAIN_INDEX) {
+                callback(&line_buf);
+                match_count += 1;
             }
-
-            if filter_domain {
-                if let Some(domain) = get_nth_field(&line_buf, b'|', NATIVE_LOG_DOMAIN_INDEX) {
-                    if !self.domain_matcher.matches(domain) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
-
-            callback(&line_buf);
-            match_count += 1;
         }
 
         Ok(match_count)
     }
-}
 
-// Optimized field extraction using memchr
-#[inline(always)]
-fn get_nth_field(line: &[u8], separator: u8, n: usize) -> Option<&[u8]> {
-    let mut iter = memchr_iter(separator, line);
-    let mut start = 0;
-    
-    for _ in 0..n {
-        match iter.next() {
-            Some(idx) => start = idx + 1,
-            None => return None,
+    #[inline(always)]
+    fn check_line(&self, line: &[u8], filter_ip: bool, filter_domain: bool, ip_idx: usize, domain_idx: usize) -> bool {
+        // If no filters, match everything (though usually we have at least one)
+        if !filter_ip && !filter_domain {
+            return true;
         }
-    }
 
-    match iter.next() {
-        Some(end) => Some(&line[start..end]),
-        None => Some(&line[start..]),
+        let mut ip_matched = !filter_ip;
+        let mut domain_matched = !filter_domain;
+
+        let mut iter = memchr_iter(b'|', line);
+        let mut current_idx = 0;
+        let mut start = 0;
+
+        // Optimization: Determine max index we need to reach
+        let max_idx = if filter_ip && filter_domain {
+            std::cmp::max(ip_idx, domain_idx)
+        } else if filter_ip {
+            ip_idx
+        } else {
+            domain_idx
+        };
+
+        while let Some(end) = iter.next() {
+            if current_idx == ip_idx && filter_ip {
+                let field = &line[start..end];
+                if self.ip_matcher.matches(field) {
+                    ip_matched = true;
+                }
+            }
+            if current_idx == domain_idx && filter_domain {
+                let field = &line[start..end];
+                if self.domain_matcher.matches(field) {
+                    domain_matched = true;
+                }
+            }
+
+            if ip_matched && domain_matched {
+                return true;
+            }
+
+            if current_idx >= max_idx {
+                break;
+            }
+
+            start = end + 1;
+            current_idx += 1;
+        }
+
+        // Handle the last field if it's the one we need
+        if current_idx <= max_idx {
+             let field = &line[start..];
+             if current_idx == ip_idx && filter_ip {
+                if self.ip_matcher.matches(field) {
+                    ip_matched = true;
+                }
+            }
+            if current_idx == domain_idx && filter_domain {
+                if self.domain_matcher.matches(field) {
+                    domain_matched = true;
+                }
+            }
+        }
+
+        ip_matched && domain_matched
     }
 }

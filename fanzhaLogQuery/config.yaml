@@ -4,8 +4,18 @@
 logDirectory: "/data/alipms/dns/fanzhaDnsLog_all/"
 
 # 查询域名
-queryDomain: "epdg.epc.mnc011.mcc460.pub.3gppnetwork.org"
-sourceIP: ""
+# 支持精确域名、泛域名（*.test.com）搜索；支持配置单个或多个域名
+# 格式示例: 
+#   queryDomain: "www.test.com"  (单个)
+#   queryDomain: ["www.test.com", "*.test.com"] (多个)
+queryDomain: ["epdg.epc.mnc011.mcc460.pub.3gppnetwork.org", "*.test.com"]
+
+# 查询源IP
+# 支持精确IP、网段（192.168.1.0/24）、IP范围（192.168.1.0-192.168.1.255）搜索；支持配置单个或多个
+# 格式示例:
+#   sourceIP: "192.168.1.5" (单个)
+#   sourceIP: ["192.168.1.5", "192.168.2.0/24"] (多个)
+sourceIP: []
 
 # 查询时间 (queryTime_hour 和 queryTime_day 不能同时为空)
 # 精确至小时 (格式: YYYYMMDDHH)
