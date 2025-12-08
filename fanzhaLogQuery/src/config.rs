@@ -10,6 +10,9 @@ pub struct Config {
     #[serde(rename = "workerPoolSize")]
     pub worker_pool_size: Option<usize>,
 
+    #[serde(rename = "coreIds")]
+    pub core_ids: Option<Vec<usize>>,
+
     #[serde(rename = "queryDomain", default, deserialize_with = "string_or_seq_string")]
     pub query_domain: Vec<String>,
 

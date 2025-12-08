@@ -10,15 +10,18 @@ use rayon::prelude::*;
 use std::fs::{self, File};
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, Instant};
 use std::thread;
 use walkdir::WalkDir;
-use crossbeam_channel::bounded;
+use crossbeam_channel::{bounded, Sender, Receiver};
+use core_affinity;
 
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+
 
 fn main() -> Result<()> {
     let start_time = Instant::now();
@@ -112,43 +115,100 @@ fn run_aggregated_log_search(config: &Config, processor: &Arc<FileProcessor>) ->
         }
     });
 
-    // Parallel processing
-    let pool_size = config.worker_pool_size.unwrap_or_else(num_cpus::get);
-    let pool = rayon::ThreadPoolBuilder::new().num_threads(pool_size).build()?;
+    // IO-Compute Separation Model
+    // 1. Channel for memory-resident file data (Bounded to limit memory usage)
+    //    Capacity = 4 means max 4 files in memory waiting for CPU.
+    //    If files are avg 100MB, max usage ~400MB + current processing file.
+    let (data_tx, data_rx) = bounded::<(PathBuf, Vec<u8>)>(4);
 
-    let total_matches = pool.install(|| {
-        files.par_iter().map(|path| {
-            let tx = tx.clone();
-            // Thread-local buffer
-            let mut local_buffer = Vec::with_capacity(256 * 1024); // 256KB buffer
-            
-            let result = processor.process_aggregated_file(path, |line| {
-                local_buffer.extend_from_slice(line);
-                local_buffer.push(b'\n');
-                
-                // Flush if buffer is large enough
-                if local_buffer.len() >= 256 * 1024 {
-                    tx.send(local_buffer.clone()).unwrap();
-                    local_buffer.clear();
-                }
-            });
-            
-            // Flush remaining data
-            if !local_buffer.is_empty() {
-                tx.send(local_buffer).unwrap();
+    // 2. Spawn IO Thread (Read file to memory)
+    //    This thread does SEQUENTIAL disk read, maximizing HDD throughput.
+    let files_for_io = files.clone();
+    let io_handle = thread::spawn(move || {
+        for path in files_for_io {
+            match File::open(&path) {
+                Ok(mut file) => {
+                    let mut buffer = Vec::with_capacity(10 * 1024 * 1024); // Start with 10MB
+                    if let Err(e) = std::io::Read::read_to_end(&mut file, &mut buffer) {
+                         eprintln!("Error reading file {:?}: {}", path, e);
+                         continue;
+                    }
+                    // Send to workers (will block if channel is full, throttling IO)
+                    if data_tx.send((path, buffer)).is_err() {
+                        break;
+                    }
+                },
+                Err(e) => eprintln!("Error opening file {:?}: {}", path, e),
             }
-            
-            let match_count = match result {
-                Ok(count) => count,
-                Err(e) => {
-                    eprintln!("Error processing file {:?}: {}", path, e);
-                    0
-                }
-            };
-            processed_count.fetch_add(1, Ordering::Relaxed);
-            match_count
-        }).sum::<usize>()
+        }
     });
+
+    // 3. Spawn Compute Workers (CPU Bound)
+    let pool_size = config.worker_pool_size.unwrap_or_else(num_cpus::get);
+    let mut handles = Vec::new();
+    let core_ids = config.core_ids.clone();
+
+    for i in 0..pool_size {
+        let data_rx = data_rx.clone();
+        let tx = tx.clone();
+        let processor = Arc::clone(processor);
+        let processed_count = Arc::clone(&processed_count);
+        let core_id_to_bind = core_ids.as_ref().and_then(|ids| ids.get(i).cloned());
+
+        let handle = thread::spawn(move || {
+            // Bind to CPU Core
+            if let Some(core_id) = core_id_to_bind {
+                if let Some(core_ids) = core_affinity::get_core_ids() {
+                    if let Some(core) = core_ids.into_iter().find(|c| c.id == core_id) {
+                        core_affinity::set_for_current(core);
+                    }
+                }
+            }
+
+            let mut total_matches = 0;
+            let mut local_buffer = Vec::with_capacity(128 * 1024); 
+            
+            while let Ok((path, data)) = data_rx.recv() {
+                // Process from Memory
+                let result = processor.process_aggregated_data(&data, |line| {
+                    local_buffer.extend_from_slice(line);
+                    local_buffer.push(b'\n');
+                    
+                    if local_buffer.len() >= 128 * 1024 {
+                        let mut new_buf = Vec::with_capacity(128 * 1024);
+                        std::mem::swap(&mut local_buffer, &mut new_buf);
+                        tx.send(new_buf).unwrap();
+                    }
+                });
+                
+                if !local_buffer.is_empty() {
+                    let mut new_buf = Vec::with_capacity(128 * 1024);
+                    std::mem::swap(&mut local_buffer, &mut new_buf);
+                    tx.send(new_buf).unwrap();
+                }
+
+                match result {
+                    Ok(count) => total_matches += count,
+                    Err(e) => eprintln!("Error processing file {:?}: {}", path, e),
+                }
+                
+                processed_count.fetch_add(1, Ordering::Relaxed);
+                
+                // Explicitly drop large buffer to free memory immediately
+                drop(data);
+            }
+            total_matches
+        });
+        handles.push(handle);
+    }
+
+    // Wait for IO thread
+    io_handle.join().unwrap();
+    
+    // Wait for workers and sum results
+    let total_matches: usize = handles.into_iter()
+        .map(|h| h.join().unwrap())
+        .sum();
 
     // Drop main thread's sender to close channel
     drop(tx);
@@ -229,42 +289,91 @@ fn run_native_log_search(config: &Config, processor: &Arc<FileProcessor>) -> Res
         }
     });
 
-    let pool_size = config.worker_pool_size.unwrap_or_else(num_cpus::get);
-    let pool = rayon::ThreadPoolBuilder::new().num_threads(pool_size).build()?;
+    // IO-Compute Separation Model
+    let (data_tx, data_rx) = bounded::<(PathBuf, Vec<u8>)>(4);
 
-    let total_matches = pool.install(|| {
-        files.par_iter().map(|path| {
-            let tx = tx.clone();
-            // Thread-local buffer
-            let mut local_buffer = Vec::with_capacity(256 * 1024); // 256KB buffer
-
-            let result = processor.process_native_file(path, |line| {
-                local_buffer.extend_from_slice(line);
-                local_buffer.push(b'\n');
-                
-                // Flush if buffer is large enough
-                if local_buffer.len() >= 256 * 1024 {
-                    tx.send(local_buffer.clone()).unwrap();
-                    local_buffer.clear();
-                }
-            });
-            
-            // Flush remaining data
-            if !local_buffer.is_empty() {
-                tx.send(local_buffer).unwrap();
+    // Spawn IO Thread
+    let files_for_io = files.clone();
+    let io_handle = thread::spawn(move || {
+        for path in files_for_io {
+            match File::open(&path) {
+                Ok(mut file) => {
+                    let mut buffer = Vec::with_capacity(10 * 1024 * 1024);
+                    if let Err(e) = std::io::Read::read_to_end(&mut file, &mut buffer) {
+                         eprintln!("Error reading file {:?}: {}", path, e);
+                         continue;
+                    }
+                    if data_tx.send((path, buffer)).is_err() {
+                        break;
+                    }
+                },
+                Err(e) => eprintln!("Error opening file {:?}: {}", path, e),
             }
-            
-            let match_count = match result {
-                Ok(count) => count,
-                Err(e) => {
-                    eprintln!("Error processing file {:?}: {}", path, e);
-                    0
-                }
-            };
-            processed_count.fetch_add(1, Ordering::Relaxed);
-            match_count
-        }).sum::<usize>()
+        }
     });
+
+    // Spawn Compute Workers
+    let pool_size = config.worker_pool_size.unwrap_or_else(num_cpus::get);
+    let mut handles = Vec::new();
+    let core_ids = config.core_ids.clone();
+
+    for i in 0..pool_size {
+        let data_rx = data_rx.clone();
+        let tx = tx.clone();
+        let processor = Arc::clone(processor);
+        let processed_count = Arc::clone(&processed_count);
+        let core_id_to_bind = core_ids.as_ref().and_then(|ids| ids.get(i).cloned());
+
+        let handle = thread::spawn(move || {
+            if let Some(core_id) = core_id_to_bind {
+                if let Some(core_ids) = core_affinity::get_core_ids() {
+                    if let Some(core) = core_ids.into_iter().find(|c| c.id == core_id) {
+                        core_affinity::set_for_current(core);
+                    }
+                }
+            }
+
+            let mut total_matches = 0;
+            let mut local_buffer = Vec::with_capacity(128 * 1024); 
+            
+            while let Ok((path, data)) = data_rx.recv() {
+                let result = processor.process_native_data(&data, |line| {
+                    local_buffer.extend_from_slice(line);
+                    local_buffer.push(b'\n');
+                    
+                    if local_buffer.len() >= 128 * 1024 {
+                        let mut new_buf = Vec::with_capacity(128 * 1024);
+                        std::mem::swap(&mut local_buffer, &mut new_buf);
+                        tx.send(new_buf).unwrap();
+                    }
+                });
+                
+                if !local_buffer.is_empty() {
+                    let mut new_buf = Vec::with_capacity(128 * 1024);
+                    std::mem::swap(&mut local_buffer, &mut new_buf);
+                    tx.send(new_buf).unwrap();
+                }
+
+                match result {
+                    Ok(count) => total_matches += count,
+                    Err(e) => eprintln!("Error processing file {:?}: {}", path, e),
+                }
+                
+                processed_count.fetch_add(1, Ordering::Relaxed);
+                drop(data);
+            }
+            total_matches
+        });
+        handles.push(handle);
+    }
+
+    // Wait for IO thread
+    io_handle.join().unwrap();
+    
+    // Wait for workers
+    let total_matches: usize = handles.into_iter()
+        .map(|h| h.join().unwrap())
+        .sum();
 
     // Drop main thread's sender
     drop(tx);

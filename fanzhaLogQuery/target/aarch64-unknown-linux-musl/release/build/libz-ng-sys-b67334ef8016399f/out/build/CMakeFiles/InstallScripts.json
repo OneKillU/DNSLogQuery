@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

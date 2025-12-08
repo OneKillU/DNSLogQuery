@@ -56,22 +56,70 @@ impl IPRule {
             IPRule::Exact(target) => ip_bytes == target.as_bytes(),
             IPRule::Prefix(prefix) => ip_bytes.starts_with(prefix),
             IPRule::Cidr(cidr) => {
-                if let Ok(s) = std::str::from_utf8(ip_bytes) {
-                    if let Ok(ip) = IpAddr::from_str(s) {
-                        return cidr.contains(&ip);
-                    }
+                if let Some(ip) = parse_ip_from_bytes(ip_bytes) {
+                    return cidr.contains(&ip);
                 }
                 false
             }
             IPRule::Range(start, end) => {
-                if let Ok(s) = std::str::from_utf8(ip_bytes) {
-                    if let Ok(ip) = IpAddr::from_str(s) {
-                        return ip >= *start && ip <= *end;
-                    }
+                if let Some(ip) = parse_ip_from_bytes(ip_bytes) {
+                    return ip >= *start && ip <= *end;
                 }
                 false
             }
         }
+    }
+}
+
+#[inline(always)]
+fn parse_ip_from_bytes(bytes: &[u8]) -> Option<IpAddr> {
+    // Try fast path for IPv4
+    // IPv4 typically: d.d.d.d, max length 15.
+    if bytes.len() > 15 {
+        // Fallback for IPv6 or others
+        return if let Ok(s) = std::str::from_utf8(bytes) {
+            IpAddr::from_str(s).ok()
+        } else {
+            None
+        };
+    }
+
+    let mut octets = [0u8; 4];
+    let mut octet_idx = 0;
+    let mut current = 0u16;
+    let mut has_digit = false;
+
+    for &b in bytes {
+        if b == b'.' {
+            if !has_digit || octet_idx >= 3 || current > 255 {
+                 // Invalid IPv4 format, try fallback
+                 // But since we checked len <= 15 and encountered '.', unlikely to be IPv6
+                 return None; 
+            }
+            octets[octet_idx] = current as u8;
+            octet_idx += 1;
+            current = 0;
+            has_digit = false;
+        } else if b >= b'0' && b <= b'9' {
+            current = current * 10 + (b - b'0') as u16;
+            has_digit = true;
+        } else {
+            // Non-digit, non-dot. Could be IPv6 (':') or garbage.
+            // Since we are in the <= 15 length block, handle fallback.
+            if let Ok(s) = std::str::from_utf8(bytes) {
+                return IpAddr::from_str(s).ok();
+            } else {
+                return None;
+            }
+        }
+    }
+    
+    // Check last octet
+    if octet_idx == 3 && has_digit && current <= 255 {
+        octets[3] = current as u8;
+        Some(IpAddr::V4(std::net::Ipv4Addr::new(octets[0], octets[1], octets[2], octets[3])))
+    } else {
+        None
     }
 }
 

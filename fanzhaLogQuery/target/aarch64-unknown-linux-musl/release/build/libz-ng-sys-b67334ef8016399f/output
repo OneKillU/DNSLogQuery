@@ -1,0 +1,181 @@
+CMAKE_TOOLCHAIN_FILE_aarch64-unknown-linux-musl = None
+CMAKE_TOOLCHAIN_FILE_aarch64_unknown_linux_musl = Some("/Users/warrenwong/Library/Caches/cargo-zigbuild/0.20.1/cmake/aarch64-unknown-linux-musl-toolchain.cmake")
+CMAKE_GENERATOR_aarch64-unknown-linux-musl = None
+CMAKE_GENERATOR_aarch64_unknown_linux_musl = None
+TARGET_CMAKE_GENERATOR = None
+CMAKE_GENERATOR = None
+CMAKE_PREFIX_PATH_aarch64-unknown-linux-musl = None
+CMAKE_PREFIX_PATH_aarch64_unknown_linux_musl = None
+TARGET_CMAKE_PREFIX_PATH = None
+CMAKE_PREFIX_PATH = None
+CMAKE_aarch64-unknown-linux-musl = None
+CMAKE_aarch64_unknown_linux_musl = None
+TARGET_CMAKE = None
+CMAKE = None
+running: cd "/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/build" && CMAKE_PREFIX_PATH="" LC_ALL="C" "cmake" "/Users/warrenwong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.23/src/zlib-ng" "-DBUILD_SHARED_LIBS=OFF" "-DZLIB_COMPAT=OFF" "-DZLIB_ENABLE_TESTS=OFF" "-DWITH_GZFILEOP=ON" "-DCMAKE_INSTALL_LIBDIR=lib" "-DCMAKE_TOOLCHAIN_FILE=/Users/warrenwong/Library/Caches/cargo-zigbuild/0.20.1/cmake/aarch64-unknown-linux-musl-toolchain.cmake" "-DCMAKE_INSTALL_PREFIX=/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out" "-DCMAKE_C_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=aarch64-unknown-linux-musl" "-DCMAKE_CXX_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=aarch64-unknown-linux-musl" "-DCMAKE_ASM_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=aarch64-unknown-linux-musl" "-DCMAKE_BUILD_TYPE=Release"
+-- Using CMake version 4.2.0
+-- ZLIB_HEADER_VERSION: 1.3.1
+-- ZLIBNG_HEADER_VERSION: 2.2.5
+-- The C compiler identification is Clang 20.1.8
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Users/warrenwong/Library/Caches/cargo-zigbuild/0.20.1/zigcc-aarch64-unknown-linux-musl-5e34.sh - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The CXX compiler identification is Clang 20.1.8
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Users/warrenwong/Library/Caches/cargo-zigbuild/0.20.1/zigcxx-aarch64-unknown-linux-musl-5e34.sh - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Arch not recognized, falling back to cmake arch: 'aarch64'
+-- Basearch of 'aarch64' has been detected as: 'arm'
+-- Using CMake toolchain: /Users/warrenwong/Library/Caches/cargo-zigbuild/0.20.1/cmake/aarch64-unknown-linux-musl-toolchain.cmake
+-- Performing Test FNO_LTO_AVAILABLE
+-- Performing Test FNO_LTO_AVAILABLE - Success
+-- Looking for arm_acle.h
+-- Looking for arm_acle.h - found
+-- Looking for sys/auxv.h
+-- Looking for sys/auxv.h - found
+-- Looking for sys/sdt.h
+-- Looking for sys/sdt.h - not found
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+-- Looking for linux/auxvec.h
+-- Looking for linux/auxvec.h - found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of off64_t
+-- Check size of off64_t - done
+-- Looking for fseeko
+-- Looking for fseeko - found
+-- Looking for strerror
+-- Looking for strerror - found
+-- Looking for posix_memalign
+-- Looking for posix_memalign - found
+-- Looking for aligned_alloc
+-- Looking for aligned_alloc - found
+-- Performing Test HAVE_NO_INTERPOSITION
+-- Performing Test HAVE_NO_INTERPOSITION - Success
+-- Performing Test HAVE_ATTRIBUTE_VISIBILITY_HIDDEN
+-- Performing Test HAVE_ATTRIBUTE_VISIBILITY_HIDDEN - Success
+-- Performing Test HAVE_ATTRIBUTE_VISIBILITY_INTERNAL
+-- Performing Test HAVE_ATTRIBUTE_VISIBILITY_INTERNAL - Success
+-- Performing Test HAVE_ATTRIBUTE_ALIGNED
+-- Performing Test HAVE_ATTRIBUTE_ALIGNED - Success
+-- Performing Test HAVE_BUILTIN_ASSUME_ALIGNED
+-- Performing Test HAVE_BUILTIN_ASSUME_ALIGNED - Success
+-- Performing Test HAVE_BUILTIN_CTZ
+-- Performing Test HAVE_BUILTIN_CTZ - Success
+-- Performing Test HAVE_BUILTIN_CTZLL
+-- Performing Test HAVE_BUILTIN_CTZLL - Success
+-- Performing Test HAVE_PTRDIFF_T
+-- Performing Test HAVE_PTRDIFF_T - Success
+-- Performing Test ARM_AUXV_HAS_CRC32
+-- Performing Test ARM_AUXV_HAS_CRC32 - Success
+-- Performing Test HAVE_MARCH_ARMV8_CRC
+-- Performing Test HAVE_MARCH_ARMV8_CRC - Success
+-- Performing Test HAVE_ACLE_FLAG
+-- Performing Test HAVE_ACLE_FLAG - Success
+-- Performing Test NEON_AVAILABLE
+-- Performing Test NEON_AVAILABLE - Success
+-- Performing Test NEON_HAS_LD4
+-- Performing Test NEON_HAS_LD4 - Success
+-- Architecture-specific source files: arch/arm/arm_features.c;arch/arm/crc32_acle.c;arch/arm/adler32_neon.c;arch/arm/chunkset_neon.c;arch/arm/compare256_neon.c;arch/arm/slide_hash_neon.c
+-- The following features have been enabled:
+
+ * CMAKE_BUILD_TYPE, Build type: Release (selected)
+ * ACLE_CRC, Support ACLE optimized CRC hash generation, using "-march=armv8-a+crc"
+ * NEON_ADLER32, Support NEON instructions in adler32, using "-march=armv8-a+simd"
+ * NEON_SLIDEHASH, Support NEON instructions in slide_hash, using "-march=armv8-a+simd"
+ * WITH_GZFILEOP, Compile with support for gzFile related functions
+ * ZLIBNG_ENABLE_TESTS, Test zlib-ng specific API
+ * WITH_SANITIZER, Enable sanitizer support
+ * WITH_GTEST, Build gtest_zlib
+ * WITH_OPTIM, Build with optimisation
+ * WITH_NEW_STRATEGIES, Use new strategies
+ * WITH_RUNTIME_CPU_DETECTION, Build with runtime CPU detection
+ * WITH_ACLE, Build with ACLE
+ * WITH_NEON, Build with NEON intrinsics
+
+-- The following features have been disabled:
+
+ * ZLIB_SYMBOL_PREFIX, Publicly exported symbols DO NOT have a custom prefix
+ * ZLIB_COMPAT, Compile with zlib compatible API
+ * ZLIB_ENABLE_TESTS, Build test binaries
+ * WITH_FUZZERS, Build test/fuzz
+ * WITH_BENCHMARKS, Build test/benchmarks
+ * WITH_BENCHMARK_APPS, Build application benchmarks
+ * WITH_NATIVE_INSTRUCTIONS, Instruct the compiler to use the full instruction set on this host (gcc/clang -march=native)
+ * WITH_MAINTAINER_WARNINGS, Build with project maintainer warnings
+ * WITH_CODE_COVERAGE, Enable code coverage reporting
+ * WITH_INFLATE_STRICT, Build with strict inflate distance checking
+ * WITH_INFLATE_ALLOW_INVALID_DIST, Build with zero fill for inflate invalid distances
+ * WITH_ARMV6, Build with ARMv6 SIMD
+ * INSTALL_UTILS, Copy minigzip and minideflate during install
+
+-- Configuring done (13.5s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/build
+running: cd "/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/build" && LC_ALL="C" "cmake" "--build" "/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/build" "--target" "install" "--config" "Release" "--parallel" "10"
+[  7%] Building C object CMakeFiles/zlib.dir/arch/generic/chunkset_c.c.o
+[  7%] Building C object CMakeFiles/zlib.dir/arch/generic/slide_hash_c.c.o
+[  7%] Building C object CMakeFiles/zlib.dir/arch/generic/adler32_c.c.o
+[ 10%] Building C object CMakeFiles/zlib.dir/arch/generic/crc32_fold_c.c.o
+[ 12%] Building C object CMakeFiles/zlib.dir/arch/generic/adler32_fold_c.c.o
+[ 15%] Building C object CMakeFiles/zlib.dir/arch/generic/compare256_c.c.o
+[ 17%] Building C object CMakeFiles/zlib.dir/arch/generic/crc32_braid_c.c.o
+[ 23%] Building C object CMakeFiles/zlib.dir/crc32.c.o
+[ 23%] Building C object CMakeFiles/zlib.dir/adler32.c.o
+[ 25%] Building C object CMakeFiles/zlib.dir/compress.c.o
+[ 28%] Building C object CMakeFiles/zlib.dir/deflate.c.o
+[ 30%] Building C object CMakeFiles/zlib.dir/deflate_huff.c.o
+[ 35%] Building C object CMakeFiles/zlib.dir/deflate_medium.c.o
+[ 38%] Building C object CMakeFiles/zlib.dir/deflate_fast.c.o
+[ 38%] Building C object CMakeFiles/zlib.dir/crc32_braid_comb.c.o
+[ 41%] Building C object CMakeFiles/zlib.dir/deflate_quick.c.o
+[ 43%] Building C object CMakeFiles/zlib.dir/deflate_rle.c.o
+[ 46%] Building C object CMakeFiles/zlib.dir/deflate_slow.c.o
+[ 48%] Building C object CMakeFiles/zlib.dir/deflate_stored.c.o
+[ 51%] Building C object CMakeFiles/zlib.dir/functable.c.o
+[ 53%] Building C object CMakeFiles/zlib.dir/infback.c.o
+[ 56%] Building C object CMakeFiles/zlib.dir/insert_string.c.o
+[ 58%] Building C object CMakeFiles/zlib.dir/inflate.c.o
+[ 61%] Building C object CMakeFiles/zlib.dir/inftrees.c.o
+[ 64%] Building C object CMakeFiles/zlib.dir/insert_string_roll.c.o
+[ 66%] Building C object CMakeFiles/zlib.dir/trees.c.o
+[ 69%] Building C object CMakeFiles/zlib.dir/uncompr.c.o
+[ 71%] Building C object CMakeFiles/zlib.dir/cpu_features.c.o
+[ 74%] Building C object CMakeFiles/zlib.dir/zutil.c.o
+[ 76%] Building C object CMakeFiles/zlib.dir/arch/arm/arm_features.c.o
+[ 79%] Building C object CMakeFiles/zlib.dir/arch/arm/adler32_neon.c.o
+[ 82%] Building C object CMakeFiles/zlib.dir/arch/arm/crc32_acle.c.o
+[ 84%] Building C object CMakeFiles/zlib.dir/arch/arm/chunkset_neon.c.o
+[ 87%] Building C object CMakeFiles/zlib.dir/arch/arm/compare256_neon.c.o
+[ 89%] Building C object CMakeFiles/zlib.dir/arch/arm/slide_hash_neon.c.o
+[ 92%] Building C object CMakeFiles/zlib.dir/gzlib.c.o
+[ 94%] Building C object CMakeFiles/zlib.dir/gzread.c.o
+[ 97%] Building C object CMakeFiles/zlib.dir/gzwrite.c.o
+[100%] Linking C static library libz-ng.a
+[100%] Built target zlib
+Install the project...
+-- Install configuration: "Release"
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/lib/libz-ng.a
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/include/zlib-ng.h
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/include/zlib_name_mangling-ng.h
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/include/zconf-ng.h
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/lib/pkgconfig/zlib-ng.pc
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/lib/cmake/zlib-ng/zlib-ng.cmake
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/lib/cmake/zlib-ng/zlib-ng-release.cmake
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/lib/cmake/zlib-ng/zlib-ng-config.cmake
+-- Installing: /Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/lib/cmake/zlib-ng/zlib-ng-config-version.cmake
+cargo:root=/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out
+cargo:rustc-link-search=native=/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/lib
+cargo:rustc-link-lib=static=z-ng
+cargo:root=/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out
+cargo:include=/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/aarch64-unknown-linux-musl/release/build/libz-ng-sys-b67334ef8016399f/out/include
+cargo:rustc-cfg=zng

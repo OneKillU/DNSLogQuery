@@ -1,0 +1,1 @@
+{"rustc":16243257175721966122,"features":"","declared_features":"","target":0,"profile":0,"path":0,"deps":[[3746573929696391749,"build_script_build",false,2943090493662738186]],"local":[{"RerunIfChanged":{"output":"aarch64-apple-darwin/release/build/rayon-core-56085c48034a6d6d/output","paths":["build.rs"]}}],"rustflags":[],"config":0,"compile_kind":0}

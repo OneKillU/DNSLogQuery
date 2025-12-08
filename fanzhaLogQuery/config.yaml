@@ -47,4 +47,8 @@ aggregatedLogResultLoc: "./"
 # --------------------------
 # 并发处理的 worker 数量 (建议根据CPU核心数设置，如 4, 8, 16)
 # 如果设置为 0 或负数，程序将使用默认值 10
-workerPoolSize: 8
+workerPoolSize: 4
+
+# 指定绑定的 CPU 核心 ID 列表 (例如: [0, 1, 2, 3])
+# 如果留空或列表为空，则不进行核心绑定
+coreIds: []

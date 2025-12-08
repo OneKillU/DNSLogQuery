@@ -53,22 +53,25 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
     ./target/release/fanzha_log_query
     ```
 
-### 方案 B: 从 macOS 交叉编译
-如果您必须在 Mac 上编译，请使用 `cross` 来构建静态 Linux 二进制文件。
+### 方案 B: 从 macOS 交叉编译 (推荐)
+已为您配置好 Cargo Zigbuild 环境，这是最稳定且无需 Docker 的交叉编译方式。
 
-1.  **安装 Docker**：`cross` 需要 Docker Desktop 运行。
-2.  **安装 cross**：
+1.  **安装依赖**（如果尚未安装）：
     ```bash
-    cargo install cross
+    brew install zig
+    cargo install cargo-zigbuild
     ```
-3.  **为 Linux 构建**：
+2.  **构建 ARM Linux 版本**：
     ```bash
-    cross build --target x86_64-unknown-linux-musl --release
+    cargo zigbuild --target aarch64-unknown-linux-musl --release
     ```
-    *注意：`musl` 创建的静态二进制文件可以在任何 Linux 发行版上运行，无需依赖。*
+3.  **结果文件**：
+    生成的二进制文件位于 `target/aarch64-unknown-linux-musl/release/fanzha_log_query`。
+    
+    *`musl` 构建是静态链接的，可以在任何 Linux 发行版（Ubuntu/CentOS/Alpine）上运行。*
 
 4.  **定位二进制文件**：
-    二进制文件将位于 `target/x86_64-unknown-linux-musl/release/fanzha_log_query`。
+    二进制文件将位于 `target/aarch64-unknown-linux-musl/release/fanzha_log_query`。
 
 ## 部署检查清单
 
