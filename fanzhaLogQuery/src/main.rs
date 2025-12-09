@@ -227,7 +227,8 @@ fn run_native_log_search(config: &Config, processor: &Arc<FileProcessor>) -> Res
     let task_time = Instant::now();
 
     let native_loc = config.native_log_loc.as_ref().expect("nativeLogLoc required");
-    let files = find_files(native_loc, &config.query_time_day, &config.query_time_hour, ".gz");
+    let native_loc = config.native_log_loc.as_ref().expect("nativeLogLoc required");
+    let files = find_files_native(native_loc, &config.query_time_day, &config.query_time_hour, ".gz");
     
     if files.is_empty() {
         println!("任务2: 未找到符合条件的原始日志文件。");
@@ -401,13 +402,43 @@ fn find_files(dir: &str, days: &Option<Vec<String>>, hours: &Option<Vec<String>>
     for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
         if path.is_file() {
-            if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                if name.ends_with(suffix) {
-                    // Check if name contains any of the time prefixes
+            if let Some(path_str) = path.to_str() {
+                if path_str.ends_with(suffix) {
+                    // Check if full path contains any of the time prefixes
+                    // This allows finding files in directories like ".../20250626/access.log.gz"
                     for prefix in &search_prefixes {
-                        if name.contains(prefix) {
+                        if path_str.contains(prefix) {
                             files.push(path.to_path_buf());
                             break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    files
+}
+
+fn find_files_native(dir: &str, days: &Option<Vec<String>>, hours: &Option<Vec<String>>, suffix: &str) -> Vec<PathBuf> {
+    let mut files = Vec::new();
+    let mut search_prefixes = Vec::new();
+    if let Some(ds) = days { search_prefixes.extend(ds.clone()); }
+    if let Some(hs) = hours { search_prefixes.extend(hs.clone()); }
+
+    for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
+        let path = entry.path();
+        if path.is_file() {
+            if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                if name.ends_with(suffix) {
+                    // Check specific format: 250_132228145205_20251209151802_1.gz
+                    let parts: Vec<&str> = name.split('_').collect();
+                    if parts.len() >= 3 {
+                        let timestamp = parts[2];
+                        for prefix in &search_prefixes {
+                            if timestamp.starts_with(prefix) {
+                                files.push(path.to_path_buf());
+                                break;
+                            }
                         }
                     }
                 }

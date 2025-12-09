@@ -1,0 +1,9 @@
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/zlib.dir
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/package.dir
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/package_source.dir
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/edit_cache.dir
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/rebuild_cache.dir
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/list_install_components.dir
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/install.dir
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/install/local.dir
+/Users/warrenwong/Desktop/DNSProject/DNS/RustProject/fanzhaLogQuery/target/debug/build/libz-ng-sys-a3a63d46389826fd/out/build/CMakeFiles/install/strip.dir
